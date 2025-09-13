@@ -24,4 +24,8 @@ public class Plano {
     @Column(nullable = false)
     private BigDecimal preco;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PlanoTipo planoTipo;
+
 }

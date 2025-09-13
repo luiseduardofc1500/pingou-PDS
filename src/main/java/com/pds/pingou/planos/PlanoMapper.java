@@ -6,6 +6,7 @@ public class PlanoMapper {
         plano.setNome(dto.getNome());
         plano.setDescricao(dto.getDescricao());
         plano.setPreco(dto.getPreco());
+        plano.setPlanoTipo(dto.getPlanoTipo());
         return plano;
     }
 
@@ -15,6 +16,7 @@ public class PlanoMapper {
         dto.setNome(plano.getNome());
         dto.setDescricao(plano.getDescricao());
         dto.setPreco(plano.getPreco());
+        dto.setPlanoTipo(plano.getPlanoTipo());
         return dto;
     }
 }

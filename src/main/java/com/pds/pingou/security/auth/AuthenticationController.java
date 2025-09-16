@@ -1,6 +1,9 @@
 package com.pds.pingou.security.auth;
 
 
+import com.pds.pingou.security.auth.dto.AuthenticationResponseDto;
+import com.pds.pingou.security.auth.dto.LoginRequestDTO;
+import com.pds.pingou.security.auth.dto.RegisterRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

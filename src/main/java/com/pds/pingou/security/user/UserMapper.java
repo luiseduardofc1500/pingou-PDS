@@ -1,6 +1,6 @@
 package com.pds.pingou.security.user;
 
-import com.pds.pingou.security.auth.RegisterRequestDTO;
+import com.pds.pingou.security.auth.dto.RegisterRequestDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +19,7 @@ public class UserMapper {
                 dto.nome(),
                 dto.sobrenome(),
                 passwordEncoder.encode(dto.password()),
-                Role.USER
+                UserRole.USER
         );
     }
 }

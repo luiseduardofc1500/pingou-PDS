@@ -73,6 +73,12 @@ public class JwtService {
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration, SecretKey key) {
+        // adiciona role no claim
+        extraClaims.put("role", userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElse("USER"));
+
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -81,6 +87,7 @@ public class JwtService {
                 .signWith(key)
                 .compact();
     }
+
 
     private boolean isTokenExpirado(String token, SecretKey key) {
         return extractExpiration(token, key).before(new Date());

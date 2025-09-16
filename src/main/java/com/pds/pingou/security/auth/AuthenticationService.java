@@ -1,6 +1,11 @@
 package com.pds.pingou.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pds.pingou.security.auth.dto.AuthenticationResponseDto;
+import com.pds.pingou.security.auth.dto.LoginRequestDTO;
+import com.pds.pingou.security.auth.dto.RegisterRequestDTO;
+import com.pds.pingou.security.exception.UserDuplicatedException;
+import com.pds.pingou.security.exception.UserNotFoundException;
 import com.pds.pingou.security.user.User;
 import com.pds.pingou.security.user.UserMapper;
 import com.pds.pingou.security.config.JwtService;
@@ -37,7 +42,7 @@ public class AuthenticationService {
 
     public AuthenticationResponseDto register(RegisterRequestDTO request) {
         if (repository.findByEmail(request.email()).isPresent()) {
-            throw new EntityExistsException(request.email());
+            throw new UserDuplicatedException(request.email());
         }
         User user = userMapper.toEntity(request);
         repository.save(user);
@@ -57,10 +62,10 @@ public class AuthenticationService {
                     )
             );
         } catch (AuthenticationException ex) {
-            throw new BadCredentialsException("Credenciais inválidas");
+            throw new BadCredentialsException("Invalid email or password");
         }
         var user = repository.findByEmail(request.email())
-                .orElseThrow(() -> new EntityNotFoundException(request.email()));
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
 
         String jwtToken = jwtService.geradorToken(user);
         String jwtRefreshToken = jwtService.geradorRefreshToken(user);

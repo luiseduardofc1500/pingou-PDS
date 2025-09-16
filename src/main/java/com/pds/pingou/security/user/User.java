@@ -1,14 +1,8 @@
 package com.pds.pingou.security.user;
 
 import com.pds.pingou.planos.Plano;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,51 +12,46 @@ import java.util.List;
 
 @Table(name = "users")
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String email;
+
+    @NonNull
     private String nome;
+
+    @NonNull
     private String sobrenome;
+
+    @NonNull
     private String password;
-    private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @NonNull
+    private UserRole role;
 
     @ManyToOne
     private Plano plano;
 
-    public User() {
-    }
-
-    public User(String email, String nome, String sobrenome, String password, Role role) {
-        this.email = email;
-        this.nome = nome;
-        this.sobrenome = sobrenome;
-        this.password = password;
-        this.role = role;
-    }
-
-    public User(String email, String nome, String sobrenome, String password, Role role, Plano plano) {
-        this.email = email;
-        this.nome = nome;
-        this.sobrenome = sobrenome;
-        this.password = password;
-        this.role = role;
-        this.plano = plano;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        if (this.role == UserRole.ADMIN) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER")
+            );
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
 
     @Override
     public String getUsername() {
@@ -88,15 +77,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    public Plano getPlano() {
-        return plano;
-    }
-
-    public void setPlano(Plano plano) {
-        this.plano = plano;
-    }
-
-
-
 }

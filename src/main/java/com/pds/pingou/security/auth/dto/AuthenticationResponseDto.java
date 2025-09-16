@@ -1,4 +1,4 @@
-package com.pds.pingou.security.auth;
+package com.pds.pingou.security.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

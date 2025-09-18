@@ -1,5 +1,7 @@
 package com.pds.pingou.security.user;
 
+import com.pds.pingou.assinatura.Assinatura;
+import com.pds.pingou.enums.StatusAssinatura;
 import com.pds.pingou.planos.Plano;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,8 +41,8 @@ public class User implements UserDetails {
     @NonNull
     private UserRole role;
 
-    @ManyToOne
-    private Plano plano;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Assinatura assinatura;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,5 +78,12 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Assinatura getAssinaturaAtiva(Plano plano) {
+        if (this.assinatura != null && this.assinatura.getStatus() == StatusAssinatura.ATIVA && this.assinatura.getPlano().equals(plano)) {
+            return this.assinatura;
+        }
+        return null;
     }
 }

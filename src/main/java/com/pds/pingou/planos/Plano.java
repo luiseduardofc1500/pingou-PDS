@@ -28,4 +28,14 @@ public class Plano {
     @Column(nullable = false)
     private PlanoTipo planoTipo;
 
+    public Plano() {
+    }
+
+    public Plano(String nome, String descricao, BigDecimal preco, PlanoTipo planoTipo) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.preco = preco;
+        this.planoTipo = planoTipo;
+    }
+
 }

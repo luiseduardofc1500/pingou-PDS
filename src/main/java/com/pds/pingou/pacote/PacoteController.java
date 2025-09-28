@@ -66,4 +66,18 @@ public class PacoteController {
         PacoteResponseDTO pacote = pacoteService.removerItem(pacoteId, itemId);
         return ResponseEntity.ok(pacote);
     }
+    
+    @GetMapping("/{id}/itens")
+    public ResponseEntity<List<ItemPacoteResponseDTO>> listarItensDoPacote(@PathVariable Long id) {
+        List<ItemPacoteResponseDTO> itens = pacoteService.listarItensDoPacote(id);
+        return ResponseEntity.ok(itens);
+    }
+    
+    @PutMapping("/{pacoteId}/itens/{itemId}/quantidade")
+    public ResponseEntity<PacoteResponseDTO> atualizarQuantidadeItem(@PathVariable Long pacoteId,
+                                                                    @PathVariable Long itemId,
+                                                                    @RequestParam Integer quantidade) {
+        PacoteResponseDTO pacote = pacoteService.atualizarQuantidadeItem(pacoteId, itemId, quantidade);
+        return ResponseEntity.ok(pacote);
+    }
 }

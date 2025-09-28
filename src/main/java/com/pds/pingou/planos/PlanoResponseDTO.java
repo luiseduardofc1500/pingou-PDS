@@ -12,5 +12,7 @@ public class PlanoResponseDTO {
     private String nome;
     private String descricao;
     private BigDecimal preco;
-    private PlanoTipo planoTipo;
+    private Integer maxProdutosPorMes;
+    private String frequenciaEntrega;
+    private Boolean ativo;
 }

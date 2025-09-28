@@ -11,5 +11,6 @@ public class PlanoRequestDTO {
     private String nome;
     private String descricao;
     private BigDecimal preco;
-    private PlanoTipo planoTipo;
+    private Integer maxProdutosPorMes;
+    private String frequenciaEntrega = "MENSAL";
 }

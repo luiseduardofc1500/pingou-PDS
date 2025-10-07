@@ -43,7 +43,8 @@ public class PlanoService {
         plano.setNome(dto.getNome());
         plano.setDescricao(dto.getDescricao());
         plano.setPreco(dto.getPreco());
-        plano.setPlanoTipo(dto.getPlanoTipo());
+        plano.setMaxProdutosPorMes(dto.getMaxProdutosPorMes());
+        plano.setFrequenciaEntrega(dto.getFrequenciaEntrega());
         plano = planoRepository.save(plano);
         return PlanoMapper.toDTO(plano);
     }

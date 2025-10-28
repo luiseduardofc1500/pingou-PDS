@@ -294,6 +294,24 @@ docker-compose up -d postgres
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
+## Carga de dados (dump) para testes
+
+- Dump completo (schema + dados): src/main/resources/data/pingou-dump.sql
+- Aviso: o script faz DROP TABLE antes de recriar; use apenas em ambiente de desenvolvimento.
+
+Como importar automaticamente
+- Windows (PowerShell): executar scripts/import-db.ps1
+- macOS/Linux (Bash): executar scripts/import-db.sh
+
+Alternativa manual (Docker)
+- Suba o Postgres: docker-compose up -d postgres
+- Copie o dump para o container: docker cp src/main/resources/data/pingou-dump.sql postgres:/tmp/pingou-dump.sql
+- Importe no banco: docker exec -i postgres psql -U admin -d pingou -v ON_ERROR_STOP=1 -f /tmp/pingou-dump.sql
+
+Após importar
+- Rode a aplicação e use as rotas de autenticação para obter tokens.
+- Para testar rotas ADMIN, altere a role de um usuário para ADMIN diretamente no banco se necessário.
+
 ## Padrões Arquiteturais Utilizados
 
 ### 1. **Repository Pattern**

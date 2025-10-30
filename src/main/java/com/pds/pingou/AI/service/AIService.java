@@ -15,23 +15,35 @@ import org.springframework.stereotype.Service;
 public class AIService {
     
     private static final Logger logger = LoggerFactory.getLogger(AIService.class);
-    private static final String DEFAULT_MODEL = "gemini-2.0-flash";
+    private static final String DEFAULT_MODEL = "gemini-2.0-flash-exp";
     
     private final AIPromptProviderFactory promptProviderFactory;
     private final Client aiClient;
+    private final String apiKey;
     
-    @Value("${ai.model:gemini-2.0-flash}")
+    @Value("${ai.model:gemini-2.0-flash-exp}")
     private String modelName;
     
-    public AIService(AIPromptProviderFactory promptProviderFactory) {
+    public AIService(AIPromptProviderFactory promptProviderFactory,
+                     @Value("${google.ai.api.key}") String apiKey) {
         this.promptProviderFactory = promptProviderFactory;
+        this.apiKey = apiKey;
+        
+        // Configurar a API key como variável de ambiente para a biblioteca
+        System.setProperty("GOOGLE_API_KEY", apiKey);
+        
+        // Inicializar o Client sem parâmetros
         this.aiClient = new Client();
+        
+        logger.info("AIService inicializado com sucesso usando o modelo: {}", DEFAULT_MODEL);
+        logger.info("API Key configurada (primeiros 10 caracteres): {}...", apiKey.substring(0, 10));
     }
 
     public AIResponseDTO processQuestion(AIQuestionDTO questionDTO) {
         try {
             // Validação da entrada
             if (questionDTO.getQuestion() == null || questionDTO.getQuestion().trim().isEmpty()) {
+                logger.warn("Tentativa de enviar pergunta vazia para IA");
                 return AIResponseDTO.error("Pergunta não pode estar vazia");
             }
             
@@ -46,6 +58,7 @@ public class AIService {
             String fullPrompt = systemPrompt + userPrompt;
             
             logger.info("Processando pergunta para IA: {}", questionDTO.getQuestion());
+            logger.debug("Usando modelo: {}", modelName != null ? modelName : DEFAULT_MODEL);
             
             // Chamar a API do Gemini
             GenerateContentResponse response = aiClient.models.generateContent(
@@ -55,7 +68,7 @@ public class AIService {
             );
             
             String responseText = response.text();
-            logger.info("Resposta da IA gerada com sucesso");
+            logger.info("Resposta da IA gerada com sucesso (tamanho: {} caracteres)", responseText.length());
             
             return new AIResponseDTO(responseText);
             
@@ -65,7 +78,21 @@ public class AIService {
             
         } catch (Exception e) {
             logger.error("Erro ao processar pergunta na IA: {}", e.getMessage(), e);
-            return AIResponseDTO.error("Erro ao processar pergunta: " + e.getMessage());
+            String errorMessage = "Desculpe, ocorreu um erro ao processar sua pergunta. ";
+            
+            // Mensagem mais amigável baseada no tipo de erro
+            if (e.getMessage() != null && e.getMessage().contains("API key")) {
+                errorMessage += "Verifique a configuração da chave da API.";
+            } else if (e.getMessage() != null && e.getMessage().contains("quota")) {
+                errorMessage += "Limite de uso da API excedido.";
+            } else if (e.getMessage() != null && e.getMessage().contains("network") || 
+                       e.getMessage() != null && e.getMessage().contains("timeout")) {
+                errorMessage += "Problema de conexão. Tente novamente.";
+            } else {
+                errorMessage += "Tente novamente em alguns instantes.";
+            }
+            
+            return AIResponseDTO.error(errorMessage);
         }
     }
 
@@ -75,9 +102,9 @@ public class AIService {
         AIResponseDTO response = processQuestion(dto);
         
         if (response.isSuccess()) {
-            return response.getResponse();
+            return response.getAnswer();
         } else {
-            return "Erro: " + response.getError();
+            return "Erro: " + response.getErrorMessage();
         }
     }
 }

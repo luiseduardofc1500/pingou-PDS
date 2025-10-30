@@ -3,6 +3,7 @@ package com.pds.pingou.AI;
 import com.pds.pingou.AI.dto.AIQuestionDTO;
 import com.pds.pingou.AI.dto.AIResponseDTO;
 import com.pds.pingou.AI.service.AIService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class AIController {
      * @return Resposta da IA
      */
     @PostMapping("/ask")
-    public ResponseEntity<AIResponseDTO> ask(@RequestBody AIQuestionDTO questionDTO) {
+    public ResponseEntity<AIResponseDTO> ask(@Valid @RequestBody AIQuestionDTO questionDTO) {
         AIResponseDTO response = aiService.processQuestion(questionDTO);
         
         if (response.isSuccess()) {

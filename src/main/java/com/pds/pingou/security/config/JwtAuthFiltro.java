@@ -33,10 +33,17 @@ public class JwtAuthFiltro extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (request.getServletPath().contains("/api/v1/auth")) {
+        String path = request.getServletPath();
+        
+        // Permite acesso público aos endpoints de autenticação e IA
+        if (path.contains("/v1/auth") || 
+            path.contains("/api/v1/auth") || 
+            path.contains("/v1/ai") || 
+            path.contains("/api/v1/ai")) {
             filterChain.doFilter(request, response);
             return;
         }
+        
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;

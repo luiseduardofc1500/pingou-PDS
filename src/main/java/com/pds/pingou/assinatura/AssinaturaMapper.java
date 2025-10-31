@@ -10,6 +10,7 @@ public class AssinaturaMapper {
         dto.setId(assinatura.getId());
         dto.setUserId(assinatura.getUser().getId());
         dto.setPlanoId(assinatura.getPlano().getId());
+        dto.setPlanoNome(assinatura.getPlano().getNome());
         dto.setStatus(assinatura.getStatus());
         dto.setDataInicio(assinatura.getDataInicio());
         dto.setDataExpiracao(assinatura.getDataExpiracao());

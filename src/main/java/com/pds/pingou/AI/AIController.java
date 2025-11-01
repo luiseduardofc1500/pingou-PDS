@@ -3,6 +3,10 @@ package com.pds.pingou.AI;
 import com.pds.pingou.AI.dto.AIQuestionDTO;
 import com.pds.pingou.AI.dto.AIResponseDTO;
 import com.pds.pingou.AI.service.AIService;
+import com.pds.pingou.AI.dto.GeneratePackageRequestDTO;
+import com.pds.pingou.AI.dto.PackageSuggestionResponseDTO;
+import com.pds.pingou.AI.service.AIPackageGeneratorService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +26,11 @@ import org.springframework.web.bind.annotation.*;
 public class AIController {
     
     private final AIService aiService;
+    private final AIPackageGeneratorService packageGeneratorService;
     
-    public AIController(AIService aiService) {
+    public AIController(AIService aiService, AIPackageGeneratorService packageGeneratorService) {
         this.aiService = aiService;
+        this.packageGeneratorService = packageGeneratorService;
     }
     
     /**
@@ -34,7 +40,7 @@ public class AIController {
      * @return Resposta da IA
      */
     @PostMapping("/ask")
-    public ResponseEntity<AIResponseDTO> ask(@RequestBody AIQuestionDTO questionDTO) {
+    public ResponseEntity<AIResponseDTO> ask(@Valid @RequestBody AIQuestionDTO questionDTO) {
         AIResponseDTO response = aiService.processQuestion(questionDTO);
         
         if (response.isSuccess()) {
@@ -65,4 +71,17 @@ public class AIController {
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("AI Service is running");
     }
+
+    /**
+     * Sugere itens de pacote para um plano, evitando repetir combinações já usadas.
+     *
+     * @param req DTO com planoId e tamanho opcional
+     * @return Lista sugerida de itens
+     */
+    @PostMapping("/packages/suggest")
+    public ResponseEntity<PackageSuggestionResponseDTO> suggestPackage(@Valid @RequestBody GeneratePackageRequestDTO req) {
+        PackageSuggestionResponseDTO resp = packageGeneratorService.suggest(req);
+        return ResponseEntity.ok(resp);
+    }
+
 }

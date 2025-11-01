@@ -9,6 +9,7 @@ public class AssinaturaResponseDTO {
     private Long id;
     private Long userId;
     private Long planoId;
+    private String planoNome;
     private StatusAssinatura status;
     private LocalDate dataInicio;
     private LocalDate dataExpiracao;

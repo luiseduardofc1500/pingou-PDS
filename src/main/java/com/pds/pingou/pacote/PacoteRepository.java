@@ -11,13 +11,12 @@ import java.util.List;
 
 @Repository
 public interface PacoteRepository extends JpaRepository<Pacote, Long> {
+    List<Pacote> findByPlano(Plano plano);
     
-    List<Pacote> findByPlanoAndAtivoTrue(Plano plano);
+    List<Pacote> findByMesAndAno(Integer mes, Integer ano);
     
-    List<Pacote> findByMesAndAnoAndAtivoTrue(Integer mes, Integer ano);
-    
-    @Query("SELECT p FROM Pacote p WHERE p.dataEntrega BETWEEN :inicio AND :fim AND p.ativo = true")
-    List<Pacote> findByDataEntregaBetweenAndAtivoTrue(
+    @Query("SELECT p FROM Pacote p WHERE p.dataEntrega BETWEEN :inicio AND :fim")
+    List<Pacote> findByDataEntregaBetween(
         @Param("inicio") LocalDate inicio, 
         @Param("fim") LocalDate fim
     );

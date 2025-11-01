@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -19,20 +20,27 @@ public class SecurityConfiguration {
 
     private final JwtAuthFiltro jwtAuthFiltro;
     private final AuthenticationProvider authenticationProvider;
+    private final CorsConfigurationSource corsConfigurationSource;
 
 
-    public SecurityConfiguration(JwtAuthFiltro jwtAuthFiltro , AuthenticationProvider authenticationProvider) {
+    public SecurityConfiguration(JwtAuthFiltro jwtAuthFiltro, 
+                                 AuthenticationProvider authenticationProvider,
+                                 CorsConfigurationSource corsConfigurationSource) {
         this.jwtAuthFiltro = jwtAuthFiltro;
         this.authenticationProvider = authenticationProvider;
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/ai").permitAll()
+                        .requestMatchers("/v1/ai/**").permitAll()
+                        .requestMatchers("/api/v1/ai/**").permitAll()
                         .requestMatchers("/v3/**", "/swagger-ui/**", "/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .anyRequest()

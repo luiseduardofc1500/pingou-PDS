@@ -1,5 +1,10 @@
 package com.pds.pingou.admin.service;
 
+import com.pds.pingou.admin.dto.UserRequestDTO;
+import com.pds.pingou.admin.dto.UserResponseDTO;
+import com.pds.pingou.admin.dto.UserUpdateDTO;
+import com.pds.pingou.security.exception.UserDuplicatedException;
+import com.pds.pingou.security.exception.UserNotFoundException;
 import com.pds.pingou.security.user.User;
 import com.pds.pingou.security.user.UserRepository;
 import com.pds.pingou.security.user.UserRole;
@@ -10,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +32,9 @@ class AdminServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AdminService adminService;
@@ -57,7 +66,7 @@ class AdminServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(userAdmin));
 
         // Act
-        Optional<User> result = adminService.findByEmail("admin@email.com");
+        Optional<UserResponseDTO> result = adminService.findByEmail("admin@email.com");
 
         // Assert
         assertTrue(result.isPresent());
@@ -73,7 +82,7 @@ class AdminServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Act
-        Optional<User> result = adminService.findByEmail("inexistente@email.com");
+        Optional<UserResponseDTO> result = adminService.findByEmail("inexistente@email.com");
 
         // Assert
         assertTrue(result.isEmpty());
@@ -103,7 +112,7 @@ class AdminServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> 
+        assertThrows(UserNotFoundException.class, () -> 
                 adminService.changeUserRole(999L, UserRole.ADMIN));
         
         verify(userRepository).findById(999L);
@@ -150,13 +159,13 @@ class AdminServiceTest {
         when(userRepository.findAll()).thenReturn(usuarios);
 
         // Act
-        List<User> result = adminService.findAll();
+        List<UserResponseDTO> result = adminService.findAll();
 
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertTrue(result.contains(userAdmin));
-        assertTrue(result.contains(userRegular));
+        assertEquals("admin@email.com", result.get(0).getEmail());
+        assertEquals("user@email.com", result.get(1).getEmail());
         verify(userRepository).findAll();
     }
 
@@ -167,7 +176,7 @@ class AdminServiceTest {
         when(userRepository.findAll()).thenReturn(Arrays.asList());
 
         // Act
-        List<User> result = adminService.findAll();
+        List<UserResponseDTO> result = adminService.findAll();
 
         // Assert
         assertNotNull(result);
@@ -188,7 +197,7 @@ class AdminServiceTest {
         when(userRepository.findAll()).thenReturn(usuarios);
 
         // Act
-        List<User> result = adminService.findAll();
+        List<UserResponseDTO> result = adminService.findAll();
 
         // Assert
         assertNotNull(result);
@@ -228,5 +237,219 @@ class AdminServiceTest {
         
         verify(userRepository).findById(2L);
         verify(userRepository).save(userRegular);
+    }
+
+    // Testes para CREATE
+    @Test
+    @DisplayName("Deve criar um novo usuário com sucesso")
+    void deveCriarNovoUsuarioComSucesso() {
+        // Arrange
+        UserRequestDTO requestDTO = new UserRequestDTO();
+        requestDTO.setEmail("novo@email.com");
+        requestDTO.setNome("Novo");
+        requestDTO.setSobrenome("Usuario");
+        requestDTO.setPassword("senha123");
+        requestDTO.setRole(UserRole.USER);
+
+        User newUser = new User();
+        newUser.setId(3L);
+        newUser.setEmail(requestDTO.getEmail());
+        newUser.setNome(requestDTO.getNome());
+        newUser.setSobrenome(requestDTO.getSobrenome());
+        newUser.setPassword("encoded_password");
+        newUser.setRole(requestDTO.getRole());
+
+        when(userRepository.findByEmail(requestDTO.getEmail())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded_password");
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+
+        // Act
+        UserResponseDTO result = adminService.createUser(requestDTO);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("novo@email.com", result.getEmail());
+        assertEquals("Novo", result.getNome());
+        assertEquals("Usuario", result.getSobrenome());
+        assertEquals(UserRole.USER, result.getRole());
+        verify(userRepository).findByEmail(requestDTO.getEmail());
+        verify(passwordEncoder).encode("senha123");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao criar usuário com email duplicado")
+    void deveLancarExcecaoAoCriarUsuarioComEmailDuplicado() {
+        // Arrange
+        UserRequestDTO requestDTO = new UserRequestDTO();
+        requestDTO.setEmail("admin@email.com");
+        requestDTO.setNome("Teste");
+        requestDTO.setSobrenome("Usuario");
+        requestDTO.setPassword("senha123");
+        requestDTO.setRole(UserRole.USER);
+
+        when(userRepository.findByEmail(requestDTO.getEmail())).thenReturn(Optional.of(userAdmin));
+
+        // Act & Assert
+        assertThrows(UserDuplicatedException.class, () -> adminService.createUser(requestDTO));
+        
+        verify(userRepository).findByEmail(requestDTO.getEmail());
+        verify(userRepository, never()).save(any());
+    }
+
+    // Testes para READ by ID
+    @Test
+    @DisplayName("Deve encontrar usuário por ID com sucesso")
+    void deveEncontrarUsuarioPorIdComSucesso() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userAdmin));
+
+        // Act
+        Optional<UserResponseDTO> result = adminService.findById(1L);
+
+        // Assert
+        assertTrue(result.isPresent());
+        assertEquals(1L, result.get().getId());
+        assertEquals("admin@email.com", result.get().getEmail());
+        assertEquals(UserRole.ADMIN, result.get().getRole());
+        verify(userRepository).findById(1L);
+    }
+
+    @Test
+    @DisplayName("Deve retornar empty quando usuário não é encontrado por ID")
+    void deveRetornarEmptyQuandoUsuarioNaoEncontradoPorId() {
+        // Arrange
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act
+        Optional<UserResponseDTO> result = adminService.findById(999L);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verify(userRepository).findById(999L);
+    }
+
+    // Testes para UPDATE
+    @Test
+    @DisplayName("Deve atualizar usuário com sucesso")
+    void deveAtualizarUsuarioComSucesso() {
+        // Arrange
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setNome("Nome Atualizado");
+        updateDTO.setSobrenome("Sobrenome Atualizado");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userRegular));
+        when(userRepository.save(any(User.class))).thenReturn(userRegular);
+
+        // Act
+        UserResponseDTO result = adminService.updateUser(2L, updateDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(userRepository).findById(2L);
+        verify(userRepository).save(userRegular);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar senha do usuário com sucesso")
+    void deveAtualizarSenhaDoUsuarioComSucesso() {
+        // Arrange
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setPassword("novaSenha123");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userRegular));
+        when(passwordEncoder.encode("novaSenha123")).thenReturn("encoded_nova_senha");
+        when(userRepository.save(any(User.class))).thenReturn(userRegular);
+
+        // Act
+        UserResponseDTO result = adminService.updateUser(2L, updateDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(userRepository).findById(2L);
+        verify(passwordEncoder).encode("novaSenha123");
+        verify(userRepository).save(userRegular);
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao atualizar usuário inexistente")
+    void deveLancarExcecaoAoAtualizarUsuarioInexistente() {
+        // Arrange
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setNome("Teste");
+
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> adminService.updateUser(999L, updateDTO));
+        
+        verify(userRepository).findById(999L);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao atualizar email para um já existente")
+    void deveLancarExcecaoAoAtualizarEmailParaJaExistente() {
+        // Arrange
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setEmail("admin@email.com");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userRegular));
+        when(userRepository.findByEmail("admin@email.com")).thenReturn(Optional.of(userAdmin));
+
+        // Act & Assert
+        assertThrows(UserDuplicatedException.class, () -> adminService.updateUser(2L, updateDTO));
+        
+        verify(userRepository).findById(2L);
+        verify(userRepository).findByEmail("admin@email.com");
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve permitir atualizar email para o mesmo email do próprio usuário")
+    void devePermitirAtualizarEmailParaMesmoEmailDoProprioUsuario() {
+        // Arrange
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setEmail("user@email.com"); // Mesmo email do userRegular
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userRegular));
+        when(userRepository.save(any(User.class))).thenReturn(userRegular);
+
+        // Act
+        UserResponseDTO result = adminService.updateUser(2L, updateDTO);
+
+        // Assert
+        assertNotNull(result);
+        verify(userRepository).findById(2L);
+        verify(userRepository, never()).findByEmail(anyString()); // Não deve verificar duplicação
+        verify(userRepository).save(userRegular);
+    }
+
+    // Testes para DELETE
+    @Test
+    @DisplayName("Deve deletar usuário com sucesso")
+    void deveDeletarUsuarioComSucesso() {
+        // Arrange
+        when(userRepository.findById(2L)).thenReturn(Optional.of(userRegular));
+
+        // Act
+        assertDoesNotThrow(() -> adminService.deleteUser(2L));
+
+        // Assert
+        verify(userRepository).findById(2L);
+        verify(userRepository).delete(userRegular);
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao deletar usuário inexistente")
+    void deveLancarExcecaoAoDeletarUsuarioInexistente() {
+        // Arrange
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> adminService.deleteUser(999L));
+        
+        verify(userRepository).findById(999L);
+        verify(userRepository, never()).delete(any());
     }
 }

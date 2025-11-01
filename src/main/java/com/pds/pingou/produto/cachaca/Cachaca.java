@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  * @since 1.0
  */
 @Entity
-@Table(name = "cachaças")
+@Table(name = "cachacas")
 @Getter
 @Setter
 public class Cachaca extends Produto {

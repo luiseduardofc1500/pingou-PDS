@@ -1,11 +1,18 @@
 package com.pds.pingou.pacote;
 
+import com.pds.pingou.assinatura.Assinatura;
+import com.pds.pingou.assinatura.AssinaturaRepository;
+import com.pds.pingou.enums.StatusAssinatura;
 import com.pds.pingou.pacote.exception.PacoteNotFoundException;
+import com.pds.pingou.pacote.historico.HistoricoEnvio;
+import com.pds.pingou.pacote.historico.HistoricoEnvioRepository;
 import com.pds.pingou.planos.Plano;
 import com.pds.pingou.planos.PlanoRepository;
 import com.pds.pingou.planos.exception.PlanoNotFoundException;
 import com.pds.pingou.produto.Produto;
 import com.pds.pingou.produto.ProdutoRepository;
+import com.pds.pingou.security.user.User;
+import com.pds.pingou.security.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +35,15 @@ public class PacoteService {
     
     @Autowired
     private ItemPacoteRepository itemPacoteRepository;
+
+    @Autowired
+    private AssinaturaRepository assinaturaRepository;
+
+    @Autowired
+    private HistoricoEnvioRepository historicoEnvioRepository;
+
+    @Autowired
+    private UserRepository userRepository;
     
     public List<PacoteResponseDTO> listarTodos() {
         return pacoteRepository.findAll().stream()
@@ -45,13 +61,13 @@ public class PacoteService {
         Plano plano = planoRepository.findById(planoId)
                 .orElseThrow(() -> new PlanoNotFoundException(planoId));
         
-        return pacoteRepository.findByPlanoAndAtivoTrue(plano).stream()
+        return pacoteRepository.findByPlano(plano).stream()
                 .map(PacoteMapper::toDTO)
                 .collect(Collectors.toList());
     }
     
     public List<PacoteResponseDTO> buscarPorMesEAno(Integer mes, Integer ano) {
-        return pacoteRepository.findByMesAndAnoAndAtivoTrue(mes, ano).stream()
+        return pacoteRepository.findByMesAndAno(mes, ano).stream()
                 .map(PacoteMapper::toDTO)
                 .collect(Collectors.toList());
     }
@@ -69,7 +85,8 @@ public class PacoteService {
             this.adicionarItensToPacote(pacote, dto.getItens());
             pacote = pacoteRepository.save(pacote);
         }
-        
+        // Registrar histórico de envio para assinantes ativos do plano
+        registrarHistoricoParaAssinantes(plano.getId(), pacote);
         return PacoteMapper.toDTO(pacote);
     }
     
@@ -87,9 +104,18 @@ public class PacoteService {
     public void deletar(Long id) {
         Pacote pacote = pacoteRepository.findById(id)
                 .orElseThrow(() -> new PacoteNotFoundException(id));
-        
-        pacote.setAtivo(false);
-        pacoteRepository.save(pacote);
+        pacoteRepository.delete(pacote);
+    }
+
+    public List<PacoteResponseDTO> listarParaUsuario(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + email));
+        Assinatura assinatura = assinaturaRepository.findByUser(user).orElse(null);
+        if (assinatura == null || assinatura.getStatus() != StatusAssinatura.ATIVA) {
+            return List.of();
+        }
+        return pacoteRepository.findByPlano(assinatura.getPlano()).stream()
+                .map(PacoteMapper::toDTO)
+                .collect(Collectors.toList());
     }
     
     @Transactional
@@ -170,6 +196,26 @@ public class PacoteService {
         // Criar e adicionar o item
         ItemPacote item = ItemPacoteMapper.toEntity(itemDto, pacote, produto);
         pacote.adicionarItem(item);
+    }
+
+    private void registrarHistoricoParaAssinantes(Long planoId, Pacote pacote) {
+        List<Assinatura> assinaturasAtivas = assinaturaRepository.findByPlanoAtivas(planoId, StatusAssinatura.ATIVA);
+        if (assinaturasAtivas.isEmpty()) return;
+
+        if (pacote.getItens() == null || pacote.getItens().isEmpty()) return;
+
+        var now = java.time.LocalDateTime.now();
+        for (Assinatura assinatura : assinaturasAtivas) {
+            for (ItemPacote item : pacote.getItens()) {
+                HistoricoEnvio h = new HistoricoEnvio();
+                h.setUser(assinatura.getUser());
+                h.setPacote(pacote);
+                h.setProduto(item.getProduto());
+                h.setQuantidade(item.getQuantidade());
+                h.setDataEnvio(now);
+                historicoEnvioRepository.save(h);
+            }
+        }
     }
     
     /**

@@ -18,5 +18,4 @@ public class PacoteResponseDTO {
     private Long planoId;
     private String planoNome;
     private List<ItemPacoteResponseDTO> itens;
-    private Boolean ativo;
 }

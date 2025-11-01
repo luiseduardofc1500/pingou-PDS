@@ -11,18 +11,19 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AIResponseDTO {
 
-    private String response;
+    private String answer;
     private boolean success;
-    private String error;
-    public AIResponseDTO(String response) {
-        this.response = response;
+    private String errorMessage;
+    
+    public AIResponseDTO(String answer) {
+        this.answer = answer;
         this.success = true;
     }
 
     public static AIResponseDTO error(String errorMessage) {
         AIResponseDTO dto = new AIResponseDTO();
         dto.setSuccess(false);
-        dto.setError(errorMessage);
+        dto.setErrorMessage(errorMessage);
         return dto;
     }
 }

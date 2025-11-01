@@ -31,7 +31,6 @@ public class PacoteMapper {
         dto.setAno(pacote.getAno());
         dto.setPlanoId(pacote.getPlano().getId());
         dto.setPlanoNome(pacote.getPlano().getNome());
-        dto.setAtivo(pacote.getAtivo());
         
         if (pacote.getItens() != null) {
             dto.setItens(pacote.getItens().stream()

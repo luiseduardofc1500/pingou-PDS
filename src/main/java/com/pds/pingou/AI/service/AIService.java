@@ -25,22 +25,41 @@ public class AIService {
     private String modelName;
     
     public AIService(AIPromptProviderFactory promptProviderFactory,
-                     @Value("${google.ai.api.key}") String apiKey) {
+                     @Value("${google.ai.api.key:}") String apiKey) {
         this.promptProviderFactory = promptProviderFactory;
         this.apiKey = apiKey;
         
-        // Configurar a API key como variável de ambiente para a biblioteca
-        System.setProperty("GOOGLE_API_KEY", apiKey);
+        Client tempClient = null;
         
-        // Inicializar o Client sem parâmetros
-        this.aiClient = new Client();
+        if (apiKey != null && !apiKey.isBlank()) {
+            try {
+                // Configurar a API key como variável de ambiente para a biblioteca
+                System.setProperty("GOOGLE_API_KEY", apiKey);
+                
+                // Inicializar o Client
+                tempClient = new Client();
+                
+                logger.info("AIService inicializado com sucesso usando o modelo: {}", DEFAULT_MODEL);
+                logger.info("API Key configurada (primeiros 10 caracteres): {}...", 
+                    apiKey.length() >= 10 ? apiKey.substring(0, 10) : apiKey);
+            } catch (Exception e) {
+                logger.warn("Falha ao inicializar Google AI Client: {}. AI Service ficará desabilitado.", e.getMessage());
+            }
+        } else {
+            logger.warn("Google AI API Key não configurada. AI Service ficará desabilitado.");
+        }
         
-        logger.info("AIService inicializado com sucesso usando o modelo: {}", DEFAULT_MODEL);
-        logger.info("API Key configurada (primeiros 10 caracteres): {}...", apiKey.substring(0, 10));
+        this.aiClient = tempClient;
     }
 
     public AIResponseDTO processQuestion(AIQuestionDTO questionDTO) {
         try {
+            // Verificar se o AI Client está disponível
+            if (aiClient == null) {
+                logger.warn("AI Client não está disponível. Configure GOOGLE_AI_API_KEY.");
+                return AIResponseDTO.error("Serviço de IA não está disponível. API Key não configurada.");
+            }
+            
             // Validação da entrada
             if (questionDTO.getQuestion() == null || questionDTO.getQuestion().trim().isEmpty()) {
                 logger.warn("Tentativa de enviar pergunta vazia para IA");

@@ -1,14 +1,6 @@
 package com.subscription.framework.core.domain.enums;
 
-/**
- * Enum genérico que representa os possíveis status de uma assinatura.
- * 
- * Este enum é parte do framework de assinaturas e pode ser utilizado
- * por qualquer implementação concreta, independente do tipo de produto.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public enum SubscriptionStatus {
     ACTIVE("Active"),
     INACTIVE("Inactive"),

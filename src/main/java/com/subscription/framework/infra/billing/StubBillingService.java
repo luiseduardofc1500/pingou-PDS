@@ -7,16 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
-/**
- * Implementação stub do serviço de billing.
- * 
- * <p><b>Hotspot de Extensão:</b> Esta é uma implementação de exemplo.
- * Para produção, crie uma implementação que integre com seu gateway
- * de pagamento (Stripe, PayPal, PagSeguro, etc.)</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public class StubBillingService implements BillingService {
     
     private static final Logger logger = LoggerFactory.getLogger(StubBillingService.class);

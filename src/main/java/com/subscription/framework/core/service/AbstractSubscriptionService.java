@@ -15,15 +15,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação base do serviço de assinaturas.
- * 
- * <p><b>Hotspot de Extensão:</b> Estenda esta classe para customizar
- * o comportamento de assinaturas no seu domínio.</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
 public abstract class AbstractSubscriptionService implements SubscriptionService {
     
     protected final SubscriptionRepository subscriptionRepository;

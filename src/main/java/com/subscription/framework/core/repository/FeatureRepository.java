@@ -7,12 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositório para features.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface FeatureRepository extends JpaRepository<Feature, Long> {
     

@@ -1,11 +1,6 @@
 package com.subscription.framework.core.domain.enums;
 
-/**
- * Enum genérico que representa a frequência de entrega de um plano de assinatura.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public enum DeliveryFrequency {
     WEEKLY("Weekly", 7),
     BIWEEKLY("Biweekly", 14),
@@ -31,9 +26,7 @@ public enum DeliveryFrequency {
         return daysInterval;
     }
 
-    /**
-     * Calcula quantas entregas ocorrem em um ano.
-     */
+
     public int getDeliveriesPerYear() {
         return 365 / daysInterval;
     }

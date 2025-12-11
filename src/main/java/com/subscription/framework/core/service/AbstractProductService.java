@@ -9,20 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação base abstrata do serviço de produtos.
- * 
- * <p><b>Hotspot de Extensão:</b> Estenda esta classe para criar
- * um serviço específico do seu tipo de produto. Você DEVE fornecer
- * as implementações dos métodos de mapeamento (toDTO, toEntity).</p>
- * 
- * @param <T> Tipo do produto (deve estender Product)
- * @param <D> Tipo do DTO de resposta
- * @param <R> Tipo do DTO de requisição
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public abstract class AbstractProductService<T extends Product, D, R> implements ProductService<T, D, R> {
     
     protected final ProductRepository<T> productRepository;

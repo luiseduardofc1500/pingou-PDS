@@ -4,16 +4,7 @@ import com.subscription.framework.core.contract.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Implementação stub do serviço de notificações.
- * 
- * <p><b>Hotspot de Extensão:</b> Esta é uma implementação de exemplo que
- * apenas loga as notificações. Para produção, crie uma implementação que
- * envie emails, SMS, push notifications, etc.</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public class StubNotificationService implements NotificationService {
     
     private static final Logger logger = LoggerFactory.getLogger(StubNotificationService.class);

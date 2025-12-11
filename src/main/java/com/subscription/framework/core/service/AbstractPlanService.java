@@ -15,15 +15,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação base do serviço de planos.
- * 
- * <p><b>Hotspot de Extensão:</b> Estenda esta classe para customizar
- * o comportamento de planos no seu domínio.</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
 public abstract class AbstractPlanService implements PlanService {
     
     protected final PlanRepository planRepository;

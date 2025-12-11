@@ -14,16 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Implementação stub do serviço de entrega.
- * 
- * <p><b>Hotspot de Extensão:</b> Esta é uma implementação de exemplo.
- * Para produção, crie uma implementação que integre com seu sistema
- * de logística (Correios, transportadoras, etc.)</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public class StubDeliveryService implements DeliveryService {
     
     private static final Logger logger = LoggerFactory.getLogger(StubDeliveryService.class);

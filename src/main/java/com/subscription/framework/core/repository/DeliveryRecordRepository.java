@@ -9,12 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositório para registros de entrega.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface DeliveryRecordRepository extends JpaRepository<DeliveryRecord, Long> {
     

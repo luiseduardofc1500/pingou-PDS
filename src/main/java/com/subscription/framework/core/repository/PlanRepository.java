@@ -9,12 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositório para planos de assinatura.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface PlanRepository extends JpaRepository<Plan, Long> {
     

@@ -1,13 +1,5 @@
 package com.subscription.framework.core.domain.enums;
 
-/**
- * Enum genérico que representa os níveis (tiers) de um plano de assinatura.
- * 
- * Pode ser estendido ou customizado conforme necessidade da implementação concreta.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
 public enum PlanTier {
     BASIC("Basic", 1),
     STANDARD("Standard", 2),

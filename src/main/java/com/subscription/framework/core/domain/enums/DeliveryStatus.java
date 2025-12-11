@@ -1,11 +1,6 @@
 package com.subscription.framework.core.domain.enums;
 
-/**
- * Enum genérico que representa o status de uma entrega.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public enum DeliveryStatus {
     PENDING("Pending"),
     PROCESSING("Processing"),

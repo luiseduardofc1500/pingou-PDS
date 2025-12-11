@@ -11,12 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositório para assinaturas.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
     

@@ -8,12 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Repositório para pacotes.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface PackageRepository extends JpaRepository<Package, Long> {
     

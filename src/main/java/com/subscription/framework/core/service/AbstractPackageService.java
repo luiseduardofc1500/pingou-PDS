@@ -6,23 +6,13 @@ import com.subscription.framework.core.domain.Package;
 import com.subscription.framework.core.domain.enums.SubscriptionStatus;
 import com.subscription.framework.core.repository.*;
 import com.subscription.framework.api.exception.PackageNotFoundException;
-import com.subscription.framework.api.exception.PlanNotFoundException;
-import com.subscription.framework.api.exception.ProductNotFoundException;
 import com.subscription.framework.api.exception.PackageItemNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação base do serviço de pacotes.
- * 
- * <p><b>Hotspot de Extensão:</b> Estenda esta classe para customizar
- * o comportamento de pacotes no seu domínio.</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 public abstract class AbstractPackageService implements PackageService {
     
     protected final PackageRepository packageRepository;

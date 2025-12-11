@@ -7,17 +7,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import java.util.List;
 
-/**
- * Repositório base para produtos.
- * 
- * <p><b>Hotspot de Extensão:</b> Estenda esta interface para criar
- * um repositório específico do seu tipo de produto.</p>
- * 
- * @param <T> Tipo do produto (deve estender Product)
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @NoRepositoryBean
 public interface ProductRepository<T extends Product> extends JpaRepository<T, Long> {
     

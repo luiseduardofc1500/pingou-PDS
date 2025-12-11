@@ -6,12 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * Repositório para itens de pacote.
- * 
- * @author Subscription Framework
- * @version 1.0
- */
+
 @Repository
 public interface PackageItemRepository extends JpaRepository<PackageItem, Long> {
     

@@ -12,27 +12,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Entidade que representa um plano de assinatura genérico.
- * 
- * Esta classe define os diferentes tipos de planos de assinatura oferecidos,
- * cada um com suas características específicas como preço, quantidade máxima
- * de itens por período e frequência de entrega.
- * 
- * <p><b>Hotspot de Extensão:</b> Os planos podem ser customizados através de
- * Features (funcionalidades) específicas de cada implementação.</p>
- * 
- * @author Subscription Framework
- * @version 1.0
- * @see Subscription
- * @see Package
- * @see Feature
- */
+
 @Setter
 @Getter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "plan_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("BASE")
 @Table(name = "plans")
 public class Plan {
     
@@ -93,14 +79,6 @@ public class Plan {
 
     public Plan() {}
 
-    /**
-     * Construtor para criação de um plano com informações essenciais.
-     * 
-     * @param name Nome comercial do plano
-     * @param description Descrição detalhada do plano
-     * @param price Preço por período
-     * @param maxItemsPerDelivery Quantidade máxima de itens por entrega
-     */
     public Plan(String name, String description, BigDecimal price, Integer maxItemsPerDelivery) {
         this.name = name;
         this.description = description;
@@ -108,9 +86,7 @@ public class Plan {
         this.maxItemsPerDelivery = maxItemsPerDelivery;
     }
     
-    /**
-     * Construtor completo para criação de um plano.
-     */
+
     public Plan(String name, String description, BigDecimal price, 
                 Integer maxItemsPerDelivery, DeliveryFrequency deliveryFrequency, PlanTier tier) {
         this.name = name;
@@ -121,59 +97,33 @@ public class Plan {
         this.tier = tier;
     }
     
-    /**
-     * Adiciona um pacote a este plano.
-     * 
-     * @param pkg Pacote a ser adicionado
-     */
+   
     public void addPackage(Package pkg) {
         packages.add(pkg);
         pkg.setPlan(this);
     }
     
-    /**
-     * Remove um pacote deste plano.
-     * 
-     * @param pkg Pacote a ser removido
-     */
+  
     public void removePackage(Package pkg) {
         packages.remove(pkg);
         pkg.setPlan(null);
     }
     
-    /**
-     * Adiciona uma feature ao plano.
-     * 
-     * @param feature Feature a ser adicionada
-     */
+   
     public void addFeature(Feature feature) {
         features.add(feature);
     }
     
-    /**
-     * Remove uma feature do plano.
-     * 
-     * @param feature Feature a ser removida
-     */
+  
     public void removeFeature(Feature feature) {
         features.remove(feature);
     }
     
-    /**
-     * Verifica se o plano possui uma determinada feature.
-     * 
-     * @param featureCode Código da feature
-     * @return true se o plano possui a feature
-     */
+ 
     public boolean hasFeature(String featureCode) {
         return features.stream().anyMatch(f -> f.getCode().equals(featureCode));
     }
     
-    /**
-     * Calcula o preço anual com desconto, se aplicável.
-     * 
-     * @return Preço anual do plano
-     */
     public BigDecimal calculateAnnualPrice() {
         int deliveriesPerYear = deliveryFrequency.getDeliveriesPerYear();
         BigDecimal annualPrice = price.multiply(BigDecimal.valueOf(deliveriesPerYear));

@@ -50,7 +50,12 @@ public class OpenApiConfig {
                 new Tag().name("Subscriptions").description("Operações de gerenciamento de assinaturas"),
                 new Tag().name("Framework Info").description("Informações sobre o framework"),
                 new Tag().name("Auth").description("Endpoints de autenticação"),
-                new Tag().name("AI").description("Endpoints de IA genérica")
+                new Tag().name("AI").description("Endpoints de IA genérica"),
+                new Tag().name("Soccer Plans").description("Planos para camisas de futebol"),
+                new Tag().name("Soccer Packages").description("Pacotes de camisas de futebol"),
+                new Tag().name("Soccer Subscriptions").description("Assinaturas de camisas de futebol"),
+                new Tag().name("Soccer Jerseys").description("Catálogo de camisas"),
+                new Tag().name("Soccer Customer Profile").description("Perfil de medidas dos clientes")
             ));
     }
 }

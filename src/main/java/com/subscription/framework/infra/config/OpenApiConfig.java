@@ -48,7 +48,9 @@ public class OpenApiConfig {
                 new Tag().name("Plans").description("Operações de gerenciamento de planos"),
                 new Tag().name("Packages").description("Operações de gerenciamento de pacotes"),
                 new Tag().name("Subscriptions").description("Operações de gerenciamento de assinaturas"),
-                new Tag().name("Framework Info").description("Informações sobre o framework")
+                new Tag().name("Framework Info").description("Informações sobre o framework"),
+                new Tag().name("Auth").description("Endpoints de autenticação"),
+                new Tag().name("AI").description("Endpoints de IA genérica")
             ));
     }
 }
